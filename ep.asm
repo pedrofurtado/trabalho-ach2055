@@ -31,7 +31,7 @@ mensagem_erro_abertura_arquivo_A: .asciiz "\nO arquivo A nao pode ser aberto."
 		 .align 2
 texto_arquivo_A: .space 20000
         .align 2
-vetorA: .space 20000
+vetorA: .space 2000000
 
 ##
 # Main code of EP.
@@ -45,6 +45,7 @@ vetorA: .space 20000
 # $s1 = sum acummulator
 # $s3 = n
 # $s4 = it has been identified a number?
+# $s5 = is negative number?
 #
 #
 
@@ -94,6 +95,9 @@ main:
 	
 	# Set the indentifier of a number to false.
 	addi $s4, $zero, 0					# $s4 = 0 (0 = false, 1 = true)
+	
+	# Set the indentifier of negative number to false.
+	addi $s5, $zero, 0					# $s5 = 0 (0 = false, 1 = true)
 
 loop1:
 	# Read the next character in file A.
@@ -119,6 +123,18 @@ loop1:
 	# Handling for [space]
 	addi $t0, $zero, 32					# $t0 = 32 = ASCII code for [space] (blank space)
 	beq $t1, $t0, loop1					# if ($t1 = [space]) then ignore it and loop again
+	
+	# Handling for +
+	addi $t0, $zero, 43					# $t0 = 43 = ASCII code for + (plus operator)
+	beq $t1, $t0, loop1					# if ($t1 = +) then ignore it and loop again
+	
+	# Handling for -
+	addi $t0, $zero, 45					# $t0 = 45 = ASCII code for - (subtraction operator)
+	bne $t1, $t0, pulaS5					# if ($t1 != -) then ignore and jump the setting of $s5, i.e., the number is not negative.
+	addi $s5, $zero, 1					# $s5 = 1 (it is a negative number) 
+	j loop1							# ITs a negative number, to loop again to get the number, man!
+	
+pulaS5:
 	
 	# -1 Print temp string
 	# Prepare stack
@@ -265,6 +281,13 @@ ACHOU_CARRIAGE_RETURN_OR_NEW_LINE:
 	# D2 - Handling for empty lines
 	beq $s4, $zero, loop1					# if ($t4 = 0 (false)) go to loop1, because does not have any number to save in buffer. I.e., it is an empty line.
 
+	# Check if is negative number
+	addi $t4, $zero, 0					# $t4 = 0 
+	beq $s5, $t4, pulaTornarNegativo			# if ($s5 == 0) go to pulaTornarNegativo, i.e., the number is not negative.
+	sub $s1, $zero, $s1					# $s1 = -$s1 (sum - complete number)
+	addi $s5, $zero, 0					# $s5 = 0 (reset identifier of negative number)
+	
+pulaTornarNegativo:
 	# D1 - Acummulate $s1 and save to vetorA
 	addi $s3, $s3, 1					# $s3 = n++
 	add $t4, $zero, $s3					# $t4 = $s3
@@ -282,8 +305,19 @@ FIM_ARQUIVO_A:
 	li $v0, 4           					# Set syscall 4 (print string)
 	syscall
 	
+	# FIx the value of n
+	addi $s3, $s3, 1					# $s3 = n++ (at this instruction the value of n is correctly fixed)
+	
 	# D2 - Handling for empty lines
 	beq $s4, $zero, exibeVetorA
+	
+	# Check if is negative number
+	addi $t4, $zero, 0					# $t4 = 0 
+	beq $s5, $t4, pulaTornarNegativo2			# if ($s5 == 0) go to pulaTornarNegativo, i.e., the number is not negative.
+	sub $s1, $zero, $s1					# $s1 = -$s1 (sum - complete number)
+	addi $s5, $zero, 0					# $s5 = 0 (reset identifier of negative number)
+	
+pulaTornarNegativo2:
 	
 	# D1 - Acummulate $s1 and save to vetorA
 	addi $s3, $s3, 1					# $s3 = n++
@@ -294,9 +328,6 @@ FIM_ARQUIVO_A:
 	addi $s1, $zero, 0					# $s1 = 0 (reset sum acummulator)
 	
 	addi $s4, $zero, 0					# $s4 = 0 (false) - reset the number identifier
-	
-	# FIx the value of n
-	addi $s3, $s3, 1					# $s3 = n++ (at this instruction the value of n is correctly fixed)
 	
 	j exibeVetorA
 
