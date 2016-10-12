@@ -32,7 +32,8 @@ mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
 		
 	     numero_total_vetorC: .asciiz "\n O valor final de nc sem as duplicacoes (vetor C) e: "
 		msg_temp_vetor_C: .asciiz "\n Valores finais no vetor C (rodada A -> B): [ "
-       msg_temp_vetor_C_rodada_b: .asciiz "\n Valores finais no vetor C (rodada B -> A): ["
+       msg_temp_vetor_C_rodada_b: .asciiz "\n Valores finais no vetor C (rodada B -> A): [ "
+      msg_temp_vetor_C_ordenacao: .asciiz "\n Valores finais no vetor C (apos ordenacao): [ "
 		
 		msg_valor_K: .asciiz "\n Valor de K: [ "
 ##
@@ -704,7 +705,7 @@ pulaVerificacaoNumeroIgual2B:
 ##############################
 concatenaAeBnoVetorC:
 	jal calculaNdoVetorC
-	j FIM
+	j ordenaVetorC
 
 calculaNdoVetorC:
 
@@ -906,7 +907,7 @@ exibeVetorCLoopInterno:
 	addi $t3, $zero, 0					# diferente_de_todos = 0
 	
 loopwhile3:
-	bge $t0, $s6, ordenaVetorC				# if (i >= nb) go to ordenaVetorC
+	bge $t0, $s6, saidoConcatena				# if (i >= nb) go to ordenaVetorC
 	addi $t1, $zero, 0					# j = 0
 	addi $t3, $zero, 1					# diferente_de_todos = 1
 	
@@ -952,7 +953,17 @@ loopwhile3InternoElse:
 fimloopwhile3:
 	addi $t0, $t0, 1					# i++
 	j loopwhile3
-	
+
+saidoConcatena:
+	jr $ra
+##############################
+# Concatena A e B no vetor C fecha
+##############################
+
+
+#######################
+# Ordenacao do vetor C
+#######################
 ordenaVetorC:
 ###############-6 IMPRIME VETOR C
 	addi $t0, $zero, -1					# $t0 = -1
@@ -1023,26 +1034,115 @@ exibeVetorCLoopInterno2:
 	## -1
 ###############-6 IMPRIME VETOR C fecha
 
-	jr $ra
-# FILE A
-# $s0 = base address of vetorA
-# $s3 = n of file A
-#
-# FILE B
-# $s6 = n of file B
-# $s7 = base address of vetorB
-#
-# FILE C
-# $s1 = base address of vetorC
-# $s2 = n of file C ($s3 + $s6 - duplications)
-#
-# COMMOM (before concatenation)
-# $s1 = sum acummulator
-# $s4 = it has been identified a number?
-# $s5 = is negative number?
-##############################
-# Concatena A e B no vetor C
-##############################
+	# i, j, aux
+	addi $t0, $s2, -1					# i = nc - 1
+	addi $t1, $zero, 0					# j = 0
+	addi $t2, $zero, 0					# aux = 0
+	
+loopwhileOrdenacao:
+	ble $t0, $zero, escreverArquivoSaida			# if (i <= 0) go to escreverArquivoSaida
+	addi $t1, $zero, 0					# j = 0
+
+loopinternowhileOrdenacao:
+	bge $t1, $t0, fimloopwhileOrdenacao			# if (j >= i) go to fimloopwhileOrdenacao
+	
+	# set c[j]
+	sll $t8, $t1, 2						# $t8 = j * 4 (in words)
+	add $t8, $t8, $s1					# $t8 = vetorC[$t8] = (j * 4) + base address of vetorC
+	lw $t5, 0($t8)						# $t5 = c[j]
+
+	# set c[j+1]	
+	addi $t7, $t1, 1					# $t7 = j + 1
+	sll $t9, $t7, 2						# $t9 = (j+1) * 4 (in words)
+	add $t9, $t9, $s1					# $t9 = vetorC[$t9] = ((j+1) * 4) + base address of vetorC
+	lw $t6, 0($t9)						# $t6 = c[j+1]
+	
+	ble $t5, $t6, elseloopinternoOrdenacao			# if (c[j] <= c[j + 1]) go to elseloopinternoOrdenacao
+	add $t2, $zero, $t5					# aux = c[j]
+	sw $t6, 0($t8)						# c[j] = c[j+1]
+	sw $t2, 0($t9)						# c[j+1] = aux
+
+elseloopinternoOrdenacao:
+	addi $t1, $t1, 1					# j++
+	j loopinternowhileOrdenacao
+
+fimloopwhileOrdenacao:
+	addi $t0, $t0, -1					# i--
+	j loopwhileOrdenacao
+
+escreverArquivoSaida:
+###############-6 IMPRIME VETOR C
+	addi $t0, $zero, -1					# $t0 = -1
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, msg_temp_vetor_C_ordenacao	        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+
+exibeVetorCLoopInterno3:
+	addi $t0, $t0, 1					# $t0++
+	sll $t1, $t0, 2						# $t1 = $t0 * 4 (in words)
+	add $t1, $t1, $s1					# $t1 = vetorC[$t0] = ($t0 * 4) + base address of vetorC
+	
+	#-2 Print integer
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
+	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
+	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	li $v0, 1           					
+	syscall 						# Print string!
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	#-2
+	
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, msg_temp_vetor_A_espaco	        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+	
+	addi $t1, $s2, -1 					# $t1 = n - 1
+	blt $t0, $t1, exibeVetorCLoopInterno3			# de 0 até n - 1
+	
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, msg_temp_vetor_A_final	        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+###############-6 IMPRIME VETOR C fecha
+	j FIM
+#######################
+# Ordenacao do vetor C fecha
+#######################
 
 ERRO_ABERTURA_ARQUIVO_B:
 	la $a0, mensagem_erro_abertura_arquivo_B        	# address of string to be printed
