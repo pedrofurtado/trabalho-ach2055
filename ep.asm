@@ -29,6 +29,7 @@ mensagem_erro_abertura_arquivo_A: .asciiz "\nO arquivo A nao pode ser aberto."
 mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
 	  mensagem_fim_arquivo_B: .asciiz "\nFIM do arquivo B."
 		msg_temp_vetor_B: .asciiz "\n Valores finais no vetor B: [ "
+	     numero_total_vetorC: .asciiz "\n O valor final de nc sem as duplicacoes (vetor C) e: "
 ##
 # Buffers.
 #
@@ -40,7 +41,8 @@ vetorA: .space 2000000
 texto_arquivo_B: .space 20000
         .align 2
 vetorB: .space 2000000
-
+	.align 2
+vetorC: .space 2000000
 ##
 # Main code of EP.
 #
@@ -56,7 +58,11 @@ vetorB: .space 2000000
 # $s6 = n of file B
 # $s7 = base address of vetorB
 #
-# COMMOM
+# FILE C
+# $s1 = base address of vetorC
+# $s2 = n of file C ($s3 + $s6)
+#
+# COMMOM (before concatenation)
 # $s1 = sum acummulator
 # $s4 = it has been identified a number?
 # $s5 = is negative number?
@@ -141,6 +147,10 @@ loop1:
 	# Handling for +
 	addi $t0, $zero, 43					# $t0 = 43 = ASCII code for + (plus operator)
 	beq $t1, $t0, loop1					# if ($t1 = +) then ignore it and loop again
+	
+	# Handling for \t (horizontal tab)
+	addi $t0, $zero, 9					# $t0 = 9 = ASCII code for \t (horizontal tab)
+	beq $t1, $t0, loop1					# if ($t1 = \t) then ignore it and loop again
 	
 	# Handling for -
 	addi $t0, $zero, 45					# $t0 = 45 = ASCII code for - (subtraction operator)
@@ -444,6 +454,10 @@ loop1B:
 	addi $t0, $zero, 43					# $t0 = 43 = ASCII code for + (plus operator)
 	beq $t1, $t0, loop1B					# if ($t1 = +) then ignore it and loop again
 	
+	# Handling for \t
+	addi $t0, $zero, 9					# $t0 = 9 = ASCII code for \t (horizontal tab)
+	beq $t1, $t0, loop1B					# if ($t1 = \t) then ignore it and loop again
+	
 	# Handling for -
 	addi $t0, $zero, 45					# $t0 = 45 = ASCII code for - (subtraction operator)
 	bne $t1, $t0, pulaS5B					# if ($t1 != -) then ignore and jump the setting of $s5, i.e., the number is not negative.
@@ -574,8 +588,8 @@ exibeVetorBLoopInterno:
 	addi $sp, $sp, 8
 	## -1
 	
-	# Exit
-	j FIM
+	# When the printing of vetorB finished, lets go concatenate vetorA e vetorB in vetorC
+	j concatenaAeBnoVetorC
 
 ACHOU_CARRIAGE_RETURN_OR_NEW_LINEB:
 	# -1 Print temp string
@@ -678,6 +692,102 @@ pulaVerificacaoNumeroIgual2B:
 #######################
 # Arquivo B fecha
 #######################
+
+
+##############################
+# Concatena A e B no vetor C
+##############################
+concatenaAeBnoVetorC:
+	jal calculaNdoVetorC
+	j FIM
+
+calculaNdoVetorC:
+	
+	# i, j, k, nc
+	addi $t0, $zero, 0					# i = 0
+	addi $t1, $zero, 0					# j = 0
+	add $s2, $s3, $s6					# nc = na + nb
+	
+loopwhile1:
+	bge $t0, $s3, preencheVetorC				# if (i >= na), go to preencheVetorC
+	addi $t1, $zero, 0					# j = 0
+
+loopwhile1Interno:
+	bge $t1, $s6, fimwhile1 				# if (j >= nb), go to fimwhile1
+	
+	# set a[i]
+	sll $t2, $t0, 2						# $t2 = i * 4 (in words)
+	add $t2, $t2, $s0					# $t2 = vetorA[$t2] = (i * 4) + base address of vetorA
+	lw $t3, 0($t2)						# $t3 = a[i]
+
+	# set b[j]	
+	sll $t2, $t1, 2						# $t2 = j * 4 (in words)
+	add $t2, $t2, $s7					# $t2 = vetorB[$t2] = (i * 4) + base address of vetorB
+	lw $t4, 0($t2)						# $t4 = b[j]
+	
+	bne $t3, $t4, loopwhile1InternoElse			# if (a[i] != b[j]) go to loopwhile1InternoElse
+	addi $s2, $s2, -1					# nc--
+	
+loopwhile1InternoElse:	
+	addi $t1, $t1, 1					# j++
+	j loopwhile1Interno
+
+fimwhile1:
+	addi $t0, $t0, 1					# i++
+	j loopwhile1
+
+preencheVetorC:
+	# nothing yet ...
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, numero_total_vetorC        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+	
+	#-2 Print integer
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	add $a0, $zero, $s2        				# $a0 = nc
+	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
+	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	li $v0, 1           					
+	syscall 						# Print string!
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	#-2
+	
+	jr $ra
+# FILE A
+# $s0 = base address of vetorA
+# $s3 = n of file A
+#
+# FILE B
+# $s6 = n of file B
+# $s7 = base address of vetorB
+#
+# FILE C
+# $s1 = base address of vetorC
+# $s2 = n of file C ($s3 + $s6 - duplications)
+#
+# COMMOM (before concatenation)
+# $s1 = sum acummulator
+# $s4 = it has been identified a number?
+# $s5 = is negative number?
+##############################
+# Concatena A e B no vetor C
+##############################
 
 ERRO_ABERTURA_ARQUIVO_B:
 	la $a0, mensagem_erro_abertura_arquivo_B        	# address of string to be printed
