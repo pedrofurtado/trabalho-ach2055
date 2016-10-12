@@ -267,11 +267,9 @@ ACHOU_CARRIAGE_RETURN_OR_NEW_LINE:
 	addi $sp, $sp, -8
 	sw $a0, 0($sp)
 	sw $v0, 4($sp)
-	
 	la $a0, detectado_r_ou_n	        			# address of string to be printed
 	li $v0, 4           					# Set syscall 4 (print string)
 	syscall
-	
 	# Reset stack
 	lw $a0, 0($sp)
 	lw $v0, 4($sp)
@@ -288,6 +286,23 @@ ACHOU_CARRIAGE_RETURN_OR_NEW_LINE:
 	addi $s5, $zero, 0					# $s5 = 0 (reset identifier of negative number)
 	
 pulaTornarNegativo:
+	# Check if number is equal to previous
+	bge $s3, 0, verificaNumeroEIgual			# if ($s3 >= 0) if n is at least 1, verify if number is equal to previous.
+	j pulaVerificacaoNumeroIgual				# else , if is the first number read, jump the verification
+
+verificaNumeroEIgual:
+	# Get the number in vetorA[n] (previous number)
+	add $t4, $zero, $s3					# $t4 = $s3 (n)
+	sll $t4, $t4, 2						# $t4 = $t4 * 4 (in words)
+	add $t4, $t4, $s0					# $t4 = vetorA[n] = ($t4 * 4) + base address of vetorA[]
+	lw $t4, 0($t4)						# $t4 = vetorA[n] (complete number), get the previous number read
+	bne $t4, $s1, pulaVerificacaoNumeroIgual		# if($t4 != $s1), if the number read is not equal to previous, then go to pulaVerificacaoNumeroIgual
+	addi $s1, $zero, 0					# else, so the number is equal to previous, then $s1 = 0 (reset sum acummulator)
+	addi $s4, $zero, 0					# $s4 = 0 (false) - reset the number identifier
+	addi $s5, $zero, 0					# $s5 = 0 (reset identifier of negative number)
+	j loop1							# Go back to the loop1, ignoring this equal number
+
+pulaVerificacaoNumeroIgual:
 	# D1 - Acummulate $s1 and save to vetorA
 	addi $s3, $s3, 1					# $s3 = n++
 	add $t4, $zero, $s3					# $t4 = $s3
@@ -295,9 +310,7 @@ pulaTornarNegativo:
 	add $t4, $t4, $s0					# $t4 = vetorA[n] = ($t4 * 4) + base address of vetorA[]
 	sw $s1, 0($t4)						# vetorA[n] = $s1 (complete number)
 	addi $s1, $zero, 0					# $s1 = 0 (reset sum acummulator)
-	
 	addi $s4, $zero, 0					# $s4 = 0 (false) - reset the number identifier
-	
 	j loop1							# Go back to the loop1
 
 FIM_ARQUIVO_A:	
@@ -309,7 +322,7 @@ FIM_ARQUIVO_A:
 	addi $s3, $s3, 1					# $s3 = n++ (at this instruction the value of n is correctly fixed)
 	
 	# D2 - Handling for empty lines
-	beq $s4, $zero, exibeVetorA
+	beq $s4, $zero, exibeVetorA 				# if ($s4 == 0), if the last line not contains a number, continue and skip.
 	
 	# Check if is negative number
 	addi $t4, $zero, 0					# $t4 = 0 
@@ -318,17 +331,33 @@ FIM_ARQUIVO_A:
 	addi $s5, $zero, 0					# $s5 = 0 (reset identifier of negative number)
 	
 pulaTornarNegativo2:
+	##############
+	# Check if number is equal to previous
+	bge $s3, 0, verificaNumeroEIgual2			# if ($s3 >= 0) if n is at least 1, verify if number is equal to previous.
+	j pulaVerificacaoNumeroIgual2				# else , if is the first number read, jump the verification
+
+verificaNumeroEIgual2:
+	# Get the number in vetorA[n] (previous number)
+	addi $t4, $s3, -1					# $t4 = $s3 - 1 (n-1, because it is the last valid position in vetor A)
+	sll $t4, $t4, 2						# $t4 = $t4 * 4 (in words)
+	add $t4, $t4, $s0					# $t4 = vetorA[n] = ($t4 * 4) + base address of vetorA[]
+	lw $t4, 0($t4)						# $t4 = vetorA[n] (complete number), get the previous number read
+	bne $t4, $s1, pulaVerificacaoNumeroIgual2		# if($t4 != $s1), if the number read is not equal to previous, then go to pulaVerificacaoNumeroIgual2
+	addi $s1, $zero, 0					# else, so the number is equal to previous, then $s1 = 0 (reset sum acummulator)
+	addi $s4, $zero, 0					# $s4 = 0 (false) - reset the number identifier
+	addi $s5, $zero, 0					# $s5 = 0 (reset identifier of negative number)
+	j exibeVetorA						# Go back to the exibeVetorA, ignoring this equal number
+	##############
 	
+pulaVerificacaoNumeroIgual2:
 	# D1 - Acummulate $s1 and save to vetorA
-	addi $s3, $s3, 1					# $s3 = n++
-	add $t4, $zero, $s3					# $t4 = $s3
+	addi $t4, $s3, 0					# $t4 = $s3 = n++ (it is the last valid position in buffer)
 	sll $t4, $t4, 2						# $t4 = $t4 * 4 (in words)
 	add $t4, $t4, $s0					# $t4 = vetorA[n] = ($t4 * 4) + base address of vetorA[]
 	sw $s1, 0($t4)						# vetorA[n] = $s1 (complete number)
 	addi $s1, $zero, 0					# $s1 = 0 (reset sum acummulator)
-	
-	addi $s4, $zero, 0					# $s4 = 0 (false) - reset the number identifier
-	
+	addi $s4, $zero, 0					# $s4 = 0 (false) - reset the number identifier	
+	addi $s3, $s3, 1					# $s3 = n++
 	j exibeVetorA
 
 ERRO_ABERTURA_ARQUIVO_A:
