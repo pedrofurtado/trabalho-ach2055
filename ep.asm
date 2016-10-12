@@ -29,7 +29,11 @@ mensagem_erro_abertura_arquivo_A: .asciiz "\nO arquivo A nao pode ser aberto."
 mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
 	  mensagem_fim_arquivo_B: .asciiz "\nFIM do arquivo B."
 		msg_temp_vetor_B: .asciiz "\n Valores finais no vetor B: [ "
+		
 	     numero_total_vetorC: .asciiz "\n O valor final de nc sem as duplicacoes (vetor C) e: "
+		msg_temp_vetor_C: .asciiz "\n Valores finais no vetor C (rodada A -> B): [ "
+		
+		msg_valor_K: .asciiz "\n Valor de K: [ "
 ##
 # Buffers.
 #
@@ -702,8 +706,10 @@ concatenaAeBnoVetorC:
 	j FIM
 
 calculaNdoVetorC:
-	
-	# i, j, k, nc
+
+	la $s1, vetorC
+
+	# i, j, nc
 	addi $t0, $zero, 0					# i = 0
 	addi $t1, $zero, 0					# j = 0
 	add $s2, $s3, $s6					# nc = na + nb
@@ -711,7 +717,6 @@ calculaNdoVetorC:
 loopwhile1:
 	bge $t0, $s3, preencheVetorC				# if (i >= na), go to preencheVetorC
 	addi $t1, $zero, 0					# j = 0
-
 loopwhile1Interno:
 	bge $t1, $s6, fimwhile1 				# if (j >= nb), go to fimwhile1
 	
@@ -737,7 +742,6 @@ fimwhile1:
 	j loopwhile1
 
 preencheVetorC:
-	# nothing yet ...
 	# -1 Print temp string
 	# Prepare stack
 	addi $sp, $sp, -8
@@ -767,6 +771,134 @@ preencheVetorC:
 	lw $v0, 4($sp)
 	addi $sp, $sp, 8
 	#-2
+	
+	
+	#i, j, k, diferente_de_todos
+	addi $t0, $zero, 0					# i = 0
+	addi $t1, $zero, 0					# j = 0
+	addi $t2, $zero, 0					# k = 0
+	addi $t3, $zero, 0					# diferente_de_todos = 0
+
+loopwhile2:
+	bge $t0, $s3, preencheVetorCRodada2			# if (i >= na) go to preencheVetorCRodada2
+	addi $t1, $zero, 0					# j = 0
+	addi $t3, $zero, 1					# diferente_de_todos = 1
+	
+loopwhile2Interno:
+	bge $t1, $s6, loopwhile2InternoElse			# if (j >= nb) go to loopwhile2InternoElse
+	
+	# set a[i]
+	sll $t4, $t0, 2						# $t4 = i * 4 (in words)
+	add $t4, $t4, $s0					# $t4 = vetorA[$t4] = (i * 4) + base address of vetorA
+	lw $t5, 0($t4)						# $t5 = a[i]
+
+	# set b[j]	
+	sll $t4, $t1, 2						# $t4 = j * 4 (in words)
+	add $t4, $t4, $s7					# $t4 = vetorB[$t4] = (i * 4) + base address of vetorB
+	lw $t6, 0($t4)						# $t6 = b[j]
+
+	bne $t5, $t6, loopwhile2InternoElse2			# if (a[i] != b[j]) go to loopwhile2InternoElse2
+	
+	# set c[k]	
+	sll $t4, $t2, 2						# $t4 = k * 4 (in words)
+	add $t4, $t4, $s1					# $t4 = vetorC[$t4] = (i * 4) + base address of vetorC
+	sw $t5, 0($t4)						# c[k] = a[i]
+	addi $t2, $t2, 1					# k++
+	addi $t3, $zero, 0					# diferente_de_todos = 0
+	j loopwhile2InternoElse					# break;			
+
+loopwhile2InternoElse2:
+	addi $t1, $t1, 1					# j++
+	j loopwhile2Interno	
+	
+loopwhile2InternoElse:
+	beq $t3, $zero, fimloopwhile2				# if (diferente_de_todos == 0) go to fimloopwhile2
+	
+	# set a[i]
+	sll $t4, $t0, 2						# $t4 = i * 4 (in words)
+	add $t4, $t4, $s0					# $t4 = vetorA[$t4] = (i * 4) + base address of vetorA
+	lw $t5, 0($t4)						# $t5 = a[i]
+
+	# set c[k]	
+	sll $t4, $t2, 2						# $t4 = k * 4 (in words)
+	add $t4, $t4, $s1					# $t4 = vetorC[$t4] = (i * 4) + base address of vetorC
+	sw $t5, 0($t4)						# c[k] = a[i]
+	addi $t2, $t2, 1					# k++
+	
+fimloopwhile2:
+	addi $t0, $t0, 1					# i++
+	j loopwhile2
+	
+preencheVetorCRodada2:
+	###############-6 IMPRIME VETOR C
+exibeVetorC:	
+	addi $t0, $zero, -1					# $t0 = -1
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, msg_temp_vetor_C	        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+
+exibeVetorCLoopInterno:
+	addi $t0, $t0, 1					# $t0++
+	sll $t1, $t0, 2						# $t1 = $t0 * 4 (in words)
+	add $t1, $t1, $s1					# $t1 = vetorC[$t0] = ($t0 * 4) + base address of vetorC
+	
+	#-2 Print integer
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
+	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
+	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	li $v0, 1           					
+	syscall 						# Print string!
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	#-2
+	
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, msg_temp_vetor_A_espaco	        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+	
+	addi $t1, $s2, -1 					# $t1 = nc - 1
+	blt $t0, $t1, exibeVetorCLoopInterno			# de 0 até nc - 1
+	
+	# -1 Print temp string
+	# Prepare stack
+	addi $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $v0, 4($sp)
+	la $a0, msg_temp_vetor_A_final	        			# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	# Reset stack
+	lw $a0, 0($sp)
+	lw $v0, 4($sp)
+	addi $sp, $sp, 8
+	## -1
+	###############-6 IMPRIME VETOR C fecha
 	
 	jr $ra
 # FILE A
