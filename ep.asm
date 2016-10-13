@@ -17,6 +17,7 @@
 ##
 # Static strings.
 #
+mensagem_erro_abertura_arquivo_saida: .asciiz "\n Erro ao abrir arquivo de saida."
 mensagem_erro_abertura_arquivo_A: .asciiz "\nO arquivo A nao pode ser aberto."
 	  mensagem_fim_arquivo_A: .asciiz "\nFIM do arquivo A."
  mensagem_erro_numero_argumentos: .asciiz "\nOs argumentos devem ser passados no formato <arquivo-A> <arquivo-B> <arquivo-Saida>."
@@ -36,19 +37,24 @@ mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
       msg_temp_vetor_C_ordenacao: .asciiz "\n Valores finais no vetor C (apos ordenacao): [ "
 		
 		msg_valor_K: .asciiz "\n Valor de K: [ "
+		
+		msg_nova_linha: .asciiz "\r\n"
+		msg_sinal_menos: .asciiz "-"
 ##
 # Buffers.
 #
 		 .align 2
-texto_arquivo_A: .space 20000
+texto_arquivo_A: .space 200
         .align 2
-vetorA: .space 2000000
+vetorA: .space 2000
 		 .align 2
-texto_arquivo_B: .space 20000
+texto_arquivo_B: .space 200
         .align 2
-vetorB: .space 2000000
+vetorB: .space 2000
 	.align 2
-vetorC: .space 2000000
+vetorC: .space 2000
+	     .align 2
+bufferSaida: .space 200
 ##
 # Main code of EP.
 #
@@ -1070,6 +1076,14 @@ fimloopwhileOrdenacao:
 	addi $t0, $t0, -1					# i--
 	j loopwhileOrdenacao
 
+#######################
+# Ordenacao do vetor C fecha
+#######################
+
+
+#########################
+# Escrever arquivo saida
+#########################
 escreverArquivoSaida:
 ###############-6 IMPRIME VETOR C
 	addi $t0, $zero, -1					# $t0 = -1
@@ -1139,11 +1153,142 @@ exibeVetorCLoopInterno3:
 	addi $sp, $sp, 8
 	## -1
 ###############-6 IMPRIME VETOR C fecha
-	j FIM
-#######################
-# Ordenacao do vetor C fecha
-#######################
+	
+###***	
+	# Open the file C to prepare to write (create it, if not exists)
+	li $v0, 13           					# Define syscall 13 (Open file)
+	li $a1, 1            					# Define file flag (1 = write)
+	lw $t0, 0($sp)         					# $t0 = argv[]
+	lw $a0, 8($t0)						# $a0 = argv[2] (file output)
+	syscall
+	
+	# Handling of error in opening of file A
+	blt $v0, $zero, ERRO_ABERTURA_ARQUIVO_SAIDA		# if ($v0 == -1, i.e., error in file output opening) then ERRO_ABERTURA_ARQUIVO_SAIDA
+	
+	# Write in file C
+ 	move $a0, $v0      					# $a0 = file descriptor 
+ 	
+ 	# i, for write in file C
+ 	addi $t0, $zero, 0					# i = 0 (internal counter for loop)
+ 	
+loopElementosVetorC:
+ 	bge $t0, $s2, FIM					# if ($t0 >= nc) go to FIM
+ 	
+ 	# set negative number identifier
+ 	addi $t3, $zero, 0					# $t3 = 0 (0 = positive, 1 = negative)
+ 	
+ 	# number of digits
+ 	addi $t4, $zero, 1					# $t4 = 1 (number of digits, at least 1)
+ 	
+ 	# set vetorC[i]
+ 	sll $t1, $t0, 2						# $t1 = i * 4 (in words)
+ 	add $t1, $t1, $s1					# $t1 = (i * 4) + base address of vetorC
+ 	lw $t1, 0($t1)						# $t1 = vetorC[i]
+ 	
+ 	bge $t1, $zero, loopDivisao				# if (vetorC[i] >= 0) go to loopDivisao 
+ 	sub $t1, $zero, $t1					# $t1 = 0 - (-$t1) = $t1 (same number but positive)
+ 	addi $t3, $zero, 1					# $t3 = 1 (is negative number!)
 
+loopDivisao:
+ 	div $t2, $t1, 10					# $t2 = vetorC[i] / 10 (quotient)
+ 	
+ 	beq $t2, $zero, paraDivisao				# if (vetorC[i]/ 10 == 0) go to paraDivisao
+ 	
+ 	addi $t4, $t4, 1					# $t4++ (increase number of digits)
+ 	
+ 	# set stack with resto da divisao
+ 	addi $sp, $sp, -4					# open a position in stack
+ 	mfhi $t5						# $t5 = resto da divisao
+ 	sw $t5, 0($sp)						# pilha[ultima_posicao] = $t5
+ 	
+ 	# set the new sub-number
+ 	add $t1, $zero, $t2					# $t1 = vetorC[i] / 10
+ 	j loopDivisao 	
+ 
+paraDivisao:
+
+	# set stack with resto da divisao (last digit, more at left)
+ 	addi $sp, $sp, -4					# open a position in stack
+ 	mfhi $t5						# $t5 = resto da divisao
+ 	sw $t5, 0($sp)						# pilha[ultima_posicao] = $t5
+ 	
+ 	beq $t3, $zero, colocaDigitosArquivo			# if ($t3 == 0, i.e., if is a positive number) go to colocaDigitosArquivo
+	
+	# Write "-"
+ 	li   $v0, 15						# Define syscall 15 (write in file)
+  	la   $a1, bufferSaida  					# address of buffer from which to write
+  	addi $t7, $zero, 45					# -
+  	sw $t7, 0($a1)
+  	li   $a2, 1      					# hardcoded buffer length
+  	syscall
+
+colocaDigitosArquivo:
+
+	beq $t4, $zero, fimloopElementosVetorC				# if ($t4 == 0) go to fimloopElementosVetorC
+	
+	lw $t5, 0($sp)							# $t5 = digit more at left
+	
+	# write digit
+  	li   $v0, 15						# Define syscall 15 (write in file)
+  	la   $a1, bufferSaida  					# address of buffer from which to write
+	addi $t5, $t5, 48					# $t5 = $t5 + 48 (Convert to ASCII code for that number)
+  	sw $t5, 0($a1)
+  	li   $a2, 1      					# hardcoded buffer length
+  	syscall
+	
+	addi $sp, $sp, 4						# up the stack
+	
+	addi $t4, $t4, -1						# $t4-- (decrease number of digits)
+	j colocaDigitosArquivo
+
+fimloopElementosVetorC:
+	# Write "\r"
+ 	li   $v0, 15						# Define syscall 15 (write in file)
+  	la   $a1, bufferSaida  					# address of buffer from which to write
+  	addi $t7, $zero, 13					# \r
+  	sw $t7, 0($a1)
+  	li   $a2, 1      					# hardcoded buffer length
+  	syscall
+  	
+  	# Write "\n"
+ 	li   $v0, 15						# Define syscall 15 (write in file)
+  	la   $a1, bufferSaida  					# address of buffer from which to write
+  	addi $t7, $zero, 10					# \n
+  	sw $t7, 0($a1)
+  	li   $a2, 1      					# hardcoded buffer length
+  	syscall
+  	
+ 	addi $t0, $t0, 1					# i++
+ 	j loopElementosVetorC	
+ 			
+ 	# Write -
+ 	#li   $v0, 15						# Define syscall 15 (write in file)
+  	#la   $a1, vetorC  					# address of buffer from which to write
+	#addi $t0, $zero, 45
+  	#sw $t0, 0($a1)
+  	#li   $a2, 1      					# hardcoded buffer length
+  	#syscall            					# Write it!
+  	
+  	# write 7
+  	#li   $v0, 15						# Define syscall 15 (write in file)
+  	#la   $a1, vetorC  					# address of buffer from which to write
+	#addi $t0, $zero, 55
+  	#sw $t0, 0($a1)
+  	#li   $a2, 1      					# hardcoded buffer length
+  	#syscall            					# Write it!
+  	
+  	#j FIM
+###***
+#########################
+# Escrever arquivo saida
+#########################
+
+ERRO_ABERTURA_ARQUIVO_SAIDA:
+	la $a0, mensagem_erro_abertura_arquivo_saida        	# address of string to be printed
+	li $v0, 4           					# Set syscall 4 (print string)
+	syscall
+	j FIM
+	
 ERRO_ABERTURA_ARQUIVO_B:
 	la $a0, mensagem_erro_abertura_arquivo_B        	# address of string to be printed
 	li $v0, 4           					# Set syscall 4 (print string)
