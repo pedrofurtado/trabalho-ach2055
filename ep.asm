@@ -38,7 +38,7 @@ mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
 		
 		msg_valor_K: .asciiz "\n Valor de K: [ "
 		
-		msg_nova_linha: .asciiz "\r\n"
+		msg_nova_linha: .asciiz "\n"
 		msg_sinal_menos: .asciiz "-"
 ##
 # Buffers.
