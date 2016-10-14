@@ -12,8 +12,138 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <string.h>
 #include <stdbool.h>
+
+static int n;
+
+int* concatena(int na, int* a, int nb, int* b) {
+
+  int i;
+  int j;
+  int k;
+  int diferente_de_todos;
+
+  /**
+   * ETAPA 2
+   *
+   * - Determinar o tamanho do vetor C[], analisando os valores dos vetores A[] e B[] e desconsiderando as duplicacoes
+   * - Realizar o merge entre os vetores A[] e B[], no vetor C[], sem os valores duplicados
+   */
+  i = 0;
+  j = 0;
+  k = 0;
+  diferente_de_todos = 0;
+  n = na + nb;
+
+  while(i < na) {
+
+    j = 0;
+
+    while(j < nb) {
+
+      if(a[i] == b[j]) {
+
+        n--;
+
+        /* Debug */printf("\nNa analise entre A[] e B[] foi encontrado a repeticao do valor: %d\n", a[i]);
+      }
+
+      j++;
+    }
+
+    i++;
+  }
+
+  /* Debug */printf("\nO tamanho do vetor C[], sem as duplicacoes, e: %d\n", n);
+
+  int* c = malloc(n * sizeof(int));
+
+  /**
+   * ETAPA 2.1
+   *
+   * - Preenchendo o vetor C[], percorrendo o vetor A[] (rodada A -> B),
+   *   colocando os valores distintos e tambem os duplicados.
+   */
+  i = 0;
+  j = 0;
+  k = 0;
+  diferente_de_todos = 0;
+
+  while(i < na) {
+
+    j = 0;
+    diferente_de_todos = 1;
+
+    while(j < nb) {
+
+      if(a[i] == b[j]) {
+
+        c[k] = a[i];
+
+        /* Debug */printf("\nInserindo o valor duplicado %d no vetor C[]\n", a[i]);
+
+        k++;
+        diferente_de_todos = 0;
+        break;
+      }
+
+      j++;
+    }
+
+    if(diferente_de_todos != 0) {
+
+      c[k] = a[i];
+      k++;
+
+      /* Debug */printf("\nInserindo o valor nao-duplicado %d no vetor C[]\n", a[i]);
+    }
+
+    i++;
+  }
+
+
+  /**
+   * ETAPA 2.2
+   *
+   * - Preenchendo o vetor C[], percorrendo o vetor B[] (rodada B -> A),
+   *   colocando apenas os valores distintos (sem colocar os duplicados,
+   *   pois eles ja foram inseridos na etapa 2.1).
+   */
+  i = 0;
+  j = 0;
+  diferente_de_todos = 0;
+
+  while(i < nb) {
+
+    j = 0;
+    diferente_de_todos = 1;
+
+    while(j < na) {
+
+      if(b[i] == a[j]) {
+
+        diferente_de_todos = 0;
+        break;
+      }
+
+      j++;
+    }
+
+    if(diferente_de_todos != 0) {
+
+      c[k] = b[i];
+      k++;
+
+      /* Debug */printf("\nInserindo o valor nao-duplicado %d no vetor C[]\n", b[i]);
+    }
+
+    i++;
+  }
+
+  return c;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -33,13 +163,10 @@ int main(int argc, char *argv[]) {
   int num;
   int i;
   int j;
-  int k;
-  int temp;
-  int diferente_de_todos;
-  int n;
   int aux;
   int anterior;
   int e_primeiro;
+  int temp;
 
 
   /**
@@ -188,124 +315,8 @@ int main(int argc, char *argv[]) {
   /* Debug */int zq; printf("\nVetor B: [ "); for (zq = 0; zq < nb; zq++) { printf("%d, ", b[zq]);} printf("]\n");
 
 
-  /**
-   * ETAPA 2
-   *
-   * - Determinar o tamanho do vetor C[], analisando os valores dos vetores A[] e B[] e desconsiderando as duplicacoes
-   * - Realizar o merge entre os vetores A[] e B[], no vetor C[], sem os valores duplicados
-   */
-  i = 0;
-  j = 0;
-  k = 0;
-  temp = 0;
-  diferente_de_todos = 0;
-  n = na + nb;
+  int* c = concatena(na, a, nb, b);
 
-  while(i < na) {
-
-    j = 0;
-
-    while(j < nb) {
-
-      if(a[i] == b[j]) {
-
-        n--;
-
-        /* Debug */printf("\nNa analise entre A[] e B[] foi encontrado a repeticao do valor: %d\n", a[i]);
-      }
-
-      j++;
-    }
-
-    i++;
-  }
-
-  /* Debug */printf("\nO tamanho do vetor C[], sem as duplicacoes, e: %d\n", n);
-
-  int c[n];
-
-
-  /**
-   * ETAPA 2.1
-   *
-   * - Preenchendo o vetor C[], percorrendo o vetor A[] (rodada A -> B),
-   *   colocando os valores distintos e tambem os duplicados.
-   */
-  i = 0;
-  j = 0;
-  k = 0;
-  diferente_de_todos = 0;
-
-  while(i < na) {
-
-    j = 0;
-    diferente_de_todos = 1;
-
-    while(j < nb) {
-
-      if(a[i] == b[j]) {
-
-        c[k] = a[i];
-
-        /* Debug */printf("\nInserindo o valor duplicado %d no vetor C[]\n", a[i]);
-
-        k++;
-        diferente_de_todos = 0;
-        break;
-      }
-
-      j++;
-    }
-
-    if(diferente_de_todos != 0) {
-
-      c[k] = a[i];
-      k++;
-
-      /* Debug */printf("\nInserindo o valor nao-duplicado %d no vetor C[]\n", a[i]);
-    }
-
-    i++;
-  }
-
-
-  /**
-   * ETAPA 2.2
-   *
-   * - Preenchendo o vetor C[], percorrendo o vetor B[] (rodada B -> A),
-   *   colocando apenas os valores distintos (sem colocar os duplicados,
-   *   pois eles ja foram inseridos na etapa 2.1).
-   */
-  i = 0;
-  j = 0;
-  diferente_de_todos = 0;
-
-  while(i < nb) {
-
-    j = 0;
-    diferente_de_todos = 1;
-
-    while(j < na) {
-
-      if(b[i] == a[j]) {
-
-        diferente_de_todos = 0;
-        break;
-      }
-
-      j++;
-    }
-
-    if(diferente_de_todos != 0) {
-
-      c[k] = b[i];
-      k++;
-
-      /* Debug */printf("\nInserindo o valor nao-duplicado %d no vetor C[]\n", b[i]);
-    }
-
-    i++;
-  }
 
   /* Debug */printf("\nVetor C: [ "); int l = 0; while(l < n) { printf("%d, ", c[l]); l++; } printf("]\n");
 
