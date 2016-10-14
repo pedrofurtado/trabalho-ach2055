@@ -1,4 +1,15 @@
 ##
+# EP1 - Arquitetura de Computadores
+#
+# Turma Matutino - 2016
+#
+# Nomes:
+#   Pedro Felipe de Azevedo Furtado    n. USP: 9277194
+#   Bruno Vinicius Brandao da Silva    n. USP: 9424058
+#   Lucas Paulon Goncalves             n. USP: 9277750
+#   Felipe Fernandes dos Santos        n. USP: 9276922
+
+##
 # Espaco de dados.
 #
 .data
@@ -699,10 +710,10 @@ pulaVerificacaoNumeroIgual2B:
 # Concatena A e B no vetor C
 ##############################
 concatenaAeBnoVetorC:
-	jal calculaNdoVetorC
+	jal concatena
 	j ordenaVetorC
 
-calculaNdoVetorC:
+concatena:
 
 	la $s1, vetorC
 
