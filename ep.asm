@@ -1,15 +1,4 @@
 ##
-# References.
-#
-
-# http://stackoverflow.com/q/16027871 - Abertura de arquivo em MIPS
-# http://stackoverflow.com/a/16994463 - Argc e Argv[] em MIPS
-# http://stackoverflow.com/a/16698890 - Ver!
-# http://stackoverflow.com/a/37505359 - Ver!
-# http://stackoverflow.com/questions/16648068/access-file-in-mips-using-mars-tool
-# http://forum.codecall.net/topic/75145-read-from-a-file-that-has-1-word-per-line-on-2-lines/
-
-##
 # Espaco de dados.
 #
 .data
@@ -196,7 +185,7 @@ pulaS5:
 	
 	la $a0, texto_arquivo_A        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int
 	li $v0, 1           					
 	syscall 						# Print string!
 	
@@ -248,7 +237,7 @@ exibeVetorALoopInterno:
 	sw $v0, 4($sp)
 	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int
 	li $v0, 1           					
 	syscall 						# Print string!
 	# Reset stack
@@ -502,7 +491,7 @@ pulaS5B:
 	
 	la $a0, texto_arquivo_B        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int
 	li $v0, 1           					
 	syscall 						# Print string!
 	
@@ -555,7 +544,7 @@ exibeVetorBLoopInterno:
 	
 	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int
 	li $v0, 1           					
 	syscall 						# Print string!
 	
@@ -771,7 +760,7 @@ preencheVetorC:
 	sw $v0, 4($sp)
 	add $a0, $zero, $s2        				# $a0 = nc
 	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int 
 	li $v0, 1           					
 	syscall 						# Print string!
 	# Reset stack
@@ -866,7 +855,7 @@ exibeVetorCLoopInterno:
 	sw $v0, 4($sp)
 	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int 
 	li $v0, 1           					
 	syscall 						# Print string!
 	# Reset stack
@@ -999,7 +988,7 @@ exibeVetorCLoopInterno2:
 	sw $v0, 4($sp)
 	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int 
 	li $v0, 1           					
 	syscall 						# Print string!
 	# Reset stack
@@ -1113,7 +1102,7 @@ exibeVetorCLoopInterno3:
 	sw $v0, 4($sp)
 	lw $a0, 0($t1)        				# $a0 = address of texto_arquivo_A (address of string to be printed)
 	#lw $a0, 0($a0)						# $a0 = texto_arquivo_A[0] = first character of buffer
-	#andi $a0, $a0, 15					# Convert ASCII code to int (http://stackoverflow.com/a/18164316) # Tabela ASCII: http://www.theasciicode.com.ar/ascii-printable-characters/number-five-ascii-code-53.html
+	#andi $a0, $a0, 15					# Convert ASCII code to int 
 	li $v0, 1           					
 	syscall 						# Print string!
 	# Reset stack
