@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
   int diferente_de_todos;
   int n;
   int aux;
+  int anterior;
+  int e_primeiro;
 
 
   /**
@@ -52,11 +54,23 @@ int main(int argc, char *argv[]) {
 
     /* Debug */printf("\nValores inteiros lidos no arquivo A: [ ");
 
+    e_primeiro = 1;
+
     while((fscanf(arq_a,"%d\n", &num)) != EOF) {
 
-      na++;
-
-      /* Debug */printf("%d, ", num);
+      if(e_primeiro == 1) {
+        na++;
+        e_primeiro = 0;
+        anterior = num;
+        /* Debug */printf("%d, ", num);
+      }
+      else {
+        if (num != anterior) {
+          na++;
+          anterior = num;
+          /* Debug */printf("%d, ", num);
+        }
+      }
     }
 
     /* Debug */printf("]\n");printf("\nO tamanho do vetor A (variavel na) e: %d\n", na);
@@ -76,10 +90,23 @@ int main(int argc, char *argv[]) {
 
   if(arq_a != NULL) {
 
+    e_primeiro = 1;
+
     while((fscanf(arq_a,"%d\n", &num)) != EOF) {
 
-      a[i] = num;
-      i++;
+      if (e_primeiro == 1) {
+        a[i] = num;
+        i++;
+        e_primeiro = 0;
+        anterior = num;
+      }
+      else {
+        if (num != anterior) {
+          a[i] = num;
+          i++;
+          anterior = num;
+        }
+      }
     }
 
     fclose(arq_a);
@@ -98,13 +125,25 @@ int main(int argc, char *argv[]) {
 
   if(arq_b != NULL) {
 
+    e_primeiro = 1;
+
     /* Debug */printf("\nValores inteiros lidos no arquivo B: [ ");
 
     while((fscanf(arq_b,"%d\n", &num)) != EOF) {
 
-      nb++;
-      
-      /* Debug */printf("%d, ", num);
+      if(e_primeiro == 1) {
+        nb++;
+        e_primeiro = 0;
+        anterior = num;
+        /* Debug */printf("%d, ", num);
+      }
+      else {
+        if (num != anterior) {
+          nb++;
+          anterior = num;
+          /* Debug */printf("%d, ", num);
+        }
+      }
     }
 
     /* Debug */printf("]\n");printf("\nO tamanho do vetor B (variavel nb) e: %d\n", nb);
@@ -124,10 +163,23 @@ int main(int argc, char *argv[]) {
 
   if(arq_b != NULL) {
 
+    e_primeiro = 1;
+
     while((fscanf(arq_b,"%d\n", &num)) != EOF) {
 
-      b[i] = num;
-      i++;
+      if (e_primeiro == 1) {
+        b[i] = num;
+        i++;
+        e_primeiro = 0;
+        anterior = num;
+      }
+      else {
+        if (num != anterior) {
+          b[i] = num;
+          i++;
+          anterior = num;
+        }
+      }
     }
 
     fclose(arq_b);
