@@ -33,17 +33,17 @@ mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
 # Buffers.
 #
 		 .align 2
-texto_arquivo_A: .space 200
+texto_arquivo_A: .space 2000
         .align 2
-vetorA: .space 2000
+vetorA: .space 10000
 		 .align 2
-texto_arquivo_B: .space 200
+texto_arquivo_B: .space 2000
         .align 2
-vetorB: .space 2000
+vetorB: .space 10000
 	.align 2
-vetorC: .space 2000
+vetorC: .space 10000
 	     .align 2
-bufferSaida: .space 200
+bufferSaida: .space 2000
 ##
 # Main code of EP.
 #
