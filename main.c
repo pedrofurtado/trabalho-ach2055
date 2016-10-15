@@ -26,8 +26,6 @@ int* concatena(int na, int* a, int nb, int* b) {
   int diferente_de_todos;
 
   /**
-   * ETAPA 2
-   *
    * - Determinar o tamanho do vetor C[], analisando os valores dos vetores A[] e B[] e desconsiderando as duplicacoes
    * - Realizar o merge entre os vetores A[] e B[], no vetor C[], sem os valores duplicados
    */
@@ -61,8 +59,6 @@ int* concatena(int na, int* a, int nb, int* b) {
   int* c = malloc(n * sizeof(int));
 
   /**
-   * ETAPA 2.1
-   *
    * - Preenchendo o vetor C[], percorrendo o vetor A[] (rodada A -> B),
    *   colocando os valores distintos e tambem os duplicados.
    */
@@ -105,11 +101,9 @@ int* concatena(int na, int* a, int nb, int* b) {
 
 
   /**
-   * ETAPA 2.2
-   *
    * - Preenchendo o vetor C[], percorrendo o vetor B[] (rodada B -> A),
    *   colocando apenas os valores distintos (sem colocar os duplicados,
-   *   pois eles ja foram inseridos na etapa 2.1).
+   *   pois eles ja foram inseridos).
    */
   i = 0;
   j = 0;
@@ -147,10 +141,13 @@ int* concatena(int na, int* a, int nb, int* b) {
 
 int main(int argc, char *argv[]) {
 
+  if (argc < 4) {
+    printf("\nOs argumentos devem ser passados no formato: <entrada-A> <entrada-B> <saida-C>");
+    return 0;
+  }
+
 
   /**
-   * ETAPA 1
-   *
    * - Ler os dois arquivos de entrada (no formato "<nome-do-programa> <nome-arquivo-A> <nome-arquivo-B>")
    * - Definir o tamanho dos vetores A[] e B[]
    * - Preencher os vetores A[] e B[] com os valores presentes nos arquivos
@@ -170,8 +167,6 @@ int main(int argc, char *argv[]) {
 
 
   /**
-   * ETAPA 1.1
-   *
    * - Definir o tamanho do vetor A[] (variavel na)
    */
   na = 0;
@@ -204,11 +199,13 @@ int main(int argc, char *argv[]) {
 
     fclose(arq_a);
   }
+  else {
+    printf("\nErro na leitura do arquivo A.");
+    return 0;
+  }
 
 
   /**
-   * ETAPA 1.2
-   *
    * - Preencher o vetor A[]
    */
   int a[na];
@@ -238,13 +235,15 @@ int main(int argc, char *argv[]) {
 
     fclose(arq_a);
   }
+  else {
+    printf("\nErro na leitura do arquivo A.");
+    return 0;
+  }
 
   /* Debug */int z;printf("\nVetor A: [ "); for (z = 0; z < na; z++) {printf("%d, ", a[z]);}printf("]\n");
 
 
   /**
-   * ETAPA 1.3
-   *
    * - Definir o tamanho do vetor B[] (variavel nb)
    */
   nb = 0;
@@ -277,11 +276,13 @@ int main(int argc, char *argv[]) {
 
     fclose(arq_b);
   }
+  else {
+    printf("\nErro na leitura do arquivo B.");
+    return 0;
+  }
 
 
   /**
-   * ETAPA 1.4
-   *
    * - Preencher o vetor B[]
    */
   i = 0;
@@ -311,6 +312,10 @@ int main(int argc, char *argv[]) {
 
     fclose(arq_b);
   }
+  else {
+    printf("\nErro na leitura do arquivo B.");
+    return 0;
+  }
 
   /* Debug */int zq; printf("\nVetor B: [ "); for (zq = 0; zq < nb; zq++) { printf("%d, ", b[zq]);} printf("]\n");
 
@@ -322,8 +327,6 @@ int main(int argc, char *argv[]) {
 
 
   /**
-   * ETAPA 3
-   *
    * - Ordenar o vetor C[] com o algoritmo BubbleSort
    */
   aux = 0;
@@ -352,9 +355,7 @@ int main(int argc, char *argv[]) {
 
 
   /**
-   * ETAPA 4
-   *
-   * - Escrever os valores do vetor C[], na ordem, no arquivo de saida passado como parametro em "argv"
+   * - Escrever os valores do vetor C[], em ordem, no arquivo de saida passado como parametro em "argv"
    */
   arq_saida = fopen(argv[3], "w");
 
@@ -370,6 +371,10 @@ int main(int argc, char *argv[]) {
     }
 
     fclose(arq_saida);
+  }
+  else {
+    printf("\nErro na leitura do arquivo C.");
+    return 0;
   }
 
   return 0;
