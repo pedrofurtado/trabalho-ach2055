@@ -18,13 +18,13 @@ mensagem_erro_abertura_arquivo_B: .asciiz "\nO arquivo B nao pode ser aberto."
 		 .align 2
 texto_arquivo_A: .space 200
         .align 2
-vetorA: .space 20000
+vetorA: .space 30000
 		 .align 2
 texto_arquivo_B: .space 200
         .align 2
-vetorB: .space 20000
+vetorB: .space 30000
 	.align 2
-vetorC: .space 20000
+vetorC: .space 30000
 	     .align 2
 bufferSaida: .space 200
 
