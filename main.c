@@ -44,8 +44,6 @@ int* concatena(int na, int* a, int nb, int* b) {
       if(a[i] == b[j]) {
 
         n--;
-
-        /* Debug */printf("\nNa analise entre A[] e B[] foi encontrado a repeticao do valor: %d\n", a[i]);
       }
 
       j++;
@@ -53,8 +51,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 
     i++;
   }
-
-  /* Debug */printf("\nO tamanho do vetor C[], sem as duplicacoes, e: %d\n", n);
 
   int* c = malloc(n * sizeof(int));
 
@@ -78,8 +74,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 
         c[k] = a[i];
 
-        /* Debug */printf("\nInserindo o valor duplicado %d no vetor C[]\n", a[i]);
-
         k++;
         diferente_de_todos = 0;
         break;
@@ -92,8 +86,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 
       c[k] = a[i];
       k++;
-
-      /* Debug */printf("\nInserindo o valor nao-duplicado %d no vetor C[]\n", a[i]);
     }
 
     i++;
@@ -129,8 +121,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 
       c[k] = b[i];
       k++;
-
-      /* Debug */printf("\nInserindo o valor nao-duplicado %d no vetor C[]\n", b[i]);
     }
 
     i++;
@@ -140,12 +130,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 }
 
 int main(int argc, char *argv[]) {
-
-  if (argc < 4) {
-    printf("\nOs argumentos devem ser passados no formato: <entrada-A> <entrada-B> <saida-C>");
-    return 0;
-  }
-
 
   /**
    * - Ler os dois arquivos de entrada (no formato "<nome-do-programa> <nome-arquivo-A> <nome-arquivo-B>")
@@ -174,8 +158,6 @@ int main(int argc, char *argv[]) {
 
   if(arq_a != NULL) {
 
-    /* Debug */printf("\nValores inteiros lidos no arquivo A: [ ");
-
     e_primeiro = 1;
 
     while((fscanf(arq_a,"%d\n", &num)) != EOF) {
@@ -184,18 +166,14 @@ int main(int argc, char *argv[]) {
         na++;
         e_primeiro = 0;
         anterior = num;
-        /* Debug */printf("%d, ", num);
       }
       else {
         if (num != anterior) {
           na++;
           anterior = num;
-          /* Debug */printf("%d, ", num);
         }
       }
     }
-
-    /* Debug */printf("]\n");printf("\nO tamanho do vetor A (variavel na) e: %d\n", na);
 
     fclose(arq_a);
   }
@@ -240,8 +218,6 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  /* Debug */int z;printf("\nVetor A: [ "); for (z = 0; z < na; z++) {printf("%d, ", a[z]);}printf("]\n");
-
 
   /**
    * - Definir o tamanho do vetor B[] (variavel nb)
@@ -253,26 +229,20 @@ int main(int argc, char *argv[]) {
 
     e_primeiro = 1;
 
-    /* Debug */printf("\nValores inteiros lidos no arquivo B: [ ");
-
     while((fscanf(arq_b,"%d\n", &num)) != EOF) {
 
       if(e_primeiro == 1) {
         nb++;
         e_primeiro = 0;
         anterior = num;
-        /* Debug */printf("%d, ", num);
       }
       else {
         if (num != anterior) {
           nb++;
           anterior = num;
-          /* Debug */printf("%d, ", num);
         }
       }
     }
-
-    /* Debug */printf("]\n");printf("\nO tamanho do vetor B (variavel nb) e: %d\n", nb);
 
     fclose(arq_b);
   }
@@ -317,14 +287,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  /* Debug */int zq; printf("\nVetor B: [ "); for (zq = 0; zq < nb; zq++) { printf("%d, ", b[zq]);} printf("]\n");
-
-
   int* c = concatena(na, a, nb, b);
-
-
-  /* Debug */printf("\nVetor C: [ "); int l = 0; while(l < n) { printf("%d, ", c[l]); l++; } printf("]\n");
-
 
   /**
    * - Ordenar o vetor C[] com o algoritmo BubbleSort
@@ -350,9 +313,6 @@ int main(int argc, char *argv[]) {
 
     i--;
   }
-
-  /* Debug */int r;printf("\nVetor C ordenado (ja sem duplicacao): [ ");for(r = 0; r < n; ++r){ printf("%d ",c[r]); }printf("]\n");
-
 
   /**
    * - Escrever os valores do vetor C[], em ordem, no arquivo de saida passado como parametro em "argv"
