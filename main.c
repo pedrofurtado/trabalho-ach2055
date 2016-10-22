@@ -25,10 +25,6 @@ int* concatena(int na, int* a, int nb, int* b) {
   int k;
   int diferente_de_todos;
 
-  /**
-   * - Determinar o tamanho do vetor C[], analisando os valores dos vetores A[] e B[] e desconsiderando as duplicacoes
-   * - Realizar o merge entre os vetores A[] e B[], no vetor C[], sem os valores duplicados
-   */
   i = 0;
   j = 0;
   k = 0;
@@ -54,10 +50,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 
   int* c = malloc(n * sizeof(int));
 
-  /**
-   * - Preenchendo o vetor C[], percorrendo o vetor A[] (rodada A -> B),
-   *   colocando os valores distintos e tambem os duplicados.
-   */
   i = 0;
   j = 0;
   k = 0;
@@ -91,12 +83,6 @@ int* concatena(int na, int* a, int nb, int* b) {
     i++;
   }
 
-
-  /**
-   * - Preenchendo o vetor C[], percorrendo o vetor B[] (rodada B -> A),
-   *   colocando apenas os valores distintos (sem colocar os duplicados,
-   *   pois eles ja foram inseridos).
-   */
   i = 0;
   j = 0;
   diferente_de_todos = 0;
@@ -131,11 +117,6 @@ int* concatena(int na, int* a, int nb, int* b) {
 
 int main(int argc, char *argv[]) {
 
-  /**
-   * - Ler os dois arquivos de entrada (no formato "<nome-do-programa> <nome-arquivo-A> <nome-arquivo-B>")
-   * - Definir o tamanho dos vetores A[] e B[]
-   * - Preencher os vetores A[] e B[] com os valores presentes nos arquivos
-   */
   FILE *arq_a;
   FILE *arq_b;
   FILE *arq_saida;
@@ -149,10 +130,6 @@ int main(int argc, char *argv[]) {
   int e_primeiro;
   int temp;
 
-
-  /**
-   * - Definir o tamanho do vetor A[] (variavel na)
-   */
   na = 0;
   arq_a = fopen(argv[1], "r");
 
@@ -182,10 +159,6 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-
-  /**
-   * - Preencher o vetor A[]
-   */
   int a[na];
   arq_a = fopen(argv[1], "r");
   i = 0;
@@ -218,10 +191,6 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-
-  /**
-   * - Definir o tamanho do vetor B[] (variavel nb)
-   */
   nb = 0;
   arq_b = fopen(argv[2], "r");
 
@@ -251,10 +220,6 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-
-  /**
-   * - Preencher o vetor B[]
-   */
   i = 0;
   int b[nb];
   arq_b = fopen(argv[2], "r");
@@ -289,9 +254,6 @@ int main(int argc, char *argv[]) {
 
   int* c = concatena(na, a, nb, b);
 
-  /**
-   * - Ordenar o vetor C[] com o algoritmo BubbleSort
-   */
   aux = 0;
   i = n - 1;
 
@@ -314,9 +276,6 @@ int main(int argc, char *argv[]) {
     i--;
   }
 
-  /**
-   * - Escrever os valores do vetor C[], em ordem, no arquivo de saida passado como parametro em "argv"
-   */
   arq_saida = fopen(argv[3], "w");
 
   if(arq_saida != NULL) {
